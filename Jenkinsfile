@@ -10,9 +10,9 @@ pipeline {
         APP_NAME = "devops"
         RELEASE = "1.0.0"
         DOCKER_USER = "nguyentienuit"
+        DOCKER_PASS = 'tien160904'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        DOCKER_CREDENTIALS = credentials('docker-credentials')
     }
     stages {
         stage("Cleanup Workspace") {
@@ -83,11 +83,12 @@ pipeline {
        stage("Build & Push Docker Image") {
              steps {
                  script {
-                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                         sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
-                         sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                         sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-                         sh "docker push ${IMAGE_NAME}:latest"
+                     docker.withRegistry('',DOCKER_PASS) {
+                         docker_image = docker.build "${IMAGE_NAME}"
+                     }
+                     docker.withRegistry('',DOCKER_PASS) {
+                         docker_image.push("${IMAGE_TAG}")
+                         docker_image.push('latest')
                      }
                  }
              }
