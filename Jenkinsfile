@@ -12,6 +12,7 @@ pipeline {
         DOCKER_USER = "nguyentienuit"
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        DOCKER_CREDENTIALS = credentials('docker-credentials')
     }
     stages {
         stage("Cleanup Workspace") {
@@ -82,14 +83,10 @@ pipeline {
        stage("Build & Push Docker Image") {
              steps {
                  script {
-                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                         docker.withRegistry('', "${DOCKER_PASSWORD}") {
-                             docker_image = docker.build "${IMAGE_NAME}"
-                         }
-                         docker.withRegistry('', "${DOCKER_PASSWORD}") {
-                             docker_image.push("${IMAGE_TAG}")
-                             docker_image.push('latest')
-                         }
+                     docker.withRegistry('https://index.docker.io/v1/', 'docker-credentials') {
+                         docker_image = docker.build "${IMAGE_NAME}"
+                         docker_image.push("${IMAGE_TAG}")
+                         docker_image.push('latest')
                      }
                  }
              }
