@@ -29,7 +29,7 @@ pipeline {
 
         stage("Build Application") {
             steps {
-                sh "mvn clean package"
+                sh 'mvn -f javaapi/pom.xml clean package'
             }
         }
 
