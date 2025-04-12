@@ -49,10 +49,13 @@ pipeline {
                         -Dsonar.sources=emartapp/javaapi/src/main/java \
                         -Dsonar.java.binaries=emartapp/javaapi/target/classes \
                         -Dsonar.java.test.binaries=emartapp/javaapi/target/test-classes \
-                        -Dsonar.java.libraries=emartapp/javaapi/target/dependency/*.jar \
-                        -Dsonar.coverage.jacoco.xmlReportPaths=emartapp/javaapi/target/site/jacoco/jacoco.xml \
+                        -Dsonar.java.libraries=${WORKSPACE}/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
                         -Dsonar.java.source=17 \
-                        -Dsonar.sourceEncoding=UTF-8
+                        -Dsonar.sourceEncoding=UTF-8 \
+                        -Dsonar.java.test.libraries=${WORKSPACE}/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
+                        -Dsonar.exclusions=**/*.xml,**/*.properties \
+                        -Dsonar.test.inclusions=**/*Test.java,**/*Tests.java \
+                        -Dsonar.coverage.exclusions=**/*Application.java,**/model/**,**/entity/**
                     '''
                 }
             }
