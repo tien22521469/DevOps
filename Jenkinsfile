@@ -1,10 +1,12 @@
 pipeline {
     agent any
+    
     tools {
         jdk 'jdk17'
         nodejs 'node16'
         maven 'maven3'
     }
+    
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
         APP_NAME = "devops"
@@ -12,34 +14,34 @@ pipeline {
         DOCKER_USER = "nguyentienuit"
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        DOCKER_CREDENTIALS = credentials('docker-cred')
     }
+    
     stages {
-        stage("Cleanup Workspace") {
+        stage('Cleanup Workspace') {
             steps {
                 cleanWs()
             }
         }
 
-        stage("Checkout from Git") {
+        stage('Checkout from Git') {
             steps {
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/tien22521469/DevOps.git'
             }
         }
 
-        stage("Build Application") {
+        stage('Build Application') {
             steps {
                 sh 'mvn -f emartapp/javaapi/pom.xml clean package'
             }
         }
 
-        stage("Test Application") {
+        stage('Test Application') {
             steps {
-                sh "mvn -f emartapp/javaapi/pom.xml test"
+                sh 'mvn -f emartapp/javaapi/pom.xml test'
             }
         }
 
-        stage("Sonarqube Analysis") {
+        stage('Sonarqube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
                     sh '''
@@ -51,17 +53,13 @@ pipeline {
                         -Dsonar.java.test.binaries=emartapp/javaapi/target/test-classes \
                         -Dsonar.java.libraries=/var/lib/jenkins/workspace/devops/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
                         -Dsonar.java.source=17 \
-                        -Dsonar.sourceEncoding=UTF-8 \
-                        -Dsonar.java.test.libraries=/var/lib/jenkins/workspace/devops/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
-                        -Dsonar.exclusions=**/*.xml,**/*.properties \
-                        -Dsonar.test.inclusions=**/*Test.java,**/*Tests.java \
-                        -Dsonar.coverage.exclusions=**/*Application.java,**/model/**,**/entity/**
+                        -Dsonar.sourceEncoding=UTF-8
                     '''
                 }
             }
         }
 
-        stage("Quality Gate") {
+        stage('Quality Gate') {
             steps {
                 script {
                     waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
@@ -71,16 +69,17 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh "npm install"
+                sh 'npm install'
             }
         }
 
         stage('TRIVY FS SCAN') {
             steps {
-                sh "trivy fs . > trivyfs.txt"
+                sh 'trivy fs .'
             }
         }
-        stage('Build & Push Docker Image') {
+
+        stage('Docker Build and Push') {
             steps {
                 script {
                     withCredentials([usernamePassword(
@@ -88,28 +87,28 @@ pipeline {
                         passwordVariable: 'DOCKER_PASSWORD',
                         usernameVariable: 'DOCKER_USERNAME'
                     )]) {
-                        sh '''
-                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                            cd emartapp/javaapi
-                            docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                            docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
-                            docker push ${IMAGE_NAME}:latest
-                            docker logout
-                        '''
+                        dir('emartapp/javaapi') {
+                            sh """
+                                docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                                docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                                docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                                docker push ${IMAGE_NAME}:latest
+                                docker logout
+                            """
+                        }
                     }
                 }
             }
         }
     }
+
     post {
         always {
-            script {
-                sh '''
-                    docker system prune -f
-                    docker logout || true
-                '''
+            node('any') {
+                sh 'docker system prune -f || true'
             }
+            cleanWs()
         }
     }
 }
