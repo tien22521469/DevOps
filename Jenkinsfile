@@ -10,7 +10,6 @@ pipeline {
         APP_NAME = "devops"
         RELEASE = "1.0.0"
         DOCKER_USER = "nguyentienuit"
-        DOCKER_PASS = 'tien160904'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
@@ -83,12 +82,14 @@ pipeline {
        stage("Build & Push Docker Image") {
              steps {
                  script {
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image = docker.build "${IMAGE_NAME}"
-                     }
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image.push("${IMAGE_TAG}")
-                         docker_image.push('latest')
+                     withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                         docker.withRegistry('', "${DOCKER_PASSWORD}") {
+                             docker_image = docker.build "${IMAGE_NAME}"
+                         }
+                         docker.withRegistry('', "${DOCKER_PASSWORD}") {
+                             docker_image.push("${IMAGE_TAG}")
+                             docker_image.push('latest')
+                         }
                      }
                  }
              }
