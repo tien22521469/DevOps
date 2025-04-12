@@ -9,8 +9,8 @@ pipeline {
         SCANNER_HOME = tool 'sonar-scanner'
         APP_NAME = "devops"
         RELEASE = "1.0.0"
+        DOCKER_CREDENTIALS = credentials('docker-cred')
         DOCKER_USER = "nguyentienuit"
-        DOCKER_PASS = 'tien160904'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
@@ -80,18 +80,30 @@ pipeline {
                 sh "trivy fs . > trivyfs.txt"
             }
         }
-        stage("Build & Push Docker Image") {
-             steps {
-                 script {
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image = docker.build "${IMAGE_NAME}"
-                     }
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image.push("${IMAGE_TAG}")
-                         docker_image.push('latest')
-                     }
-                 }
-             }
-         }
+        stage('Build & Push Docker Image') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-cred',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )]) {
+                        sh '''
+                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                            cd emartapp/javaapi
+                            docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                            docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                            docker push ${IMAGE_NAME}:latest
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            sh 'docker logout'
+        }
     }
 }
