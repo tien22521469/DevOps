@@ -80,24 +80,18 @@ pipeline {
                 sh "trivy fs . > trivyfs.txt"
             }
         }
-       stage("Build & Push Docker Image") {
-    steps {
-        script {
-            def imageName = "${env.IMAGE_NAME}"
-            def imageTag = "${env.IMAGE_TAG}"
-
-            withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                sh """
-                    echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
-                    docker build -t ${imageName}:${imageTag} .
-                    docker tag ${imageName}:${imageTag} ${imageName}:latest
-                    docker push ${imageName}:${imageTag}
-                    docker push ${imageName}:latest
-                """
-            }
-        }
-    }
-}
-
+        stage("Build & Push Docker Image") {
+             steps {
+                 script {
+                     docker.withRegistry('',DOCKER_PASS) {
+                         docker_image = docker.build "${IMAGE_NAME}"
+                     }
+                     docker.withRegistry('',DOCKER_PASS) {
+                         docker_image.push("${IMAGE_TAG}")
+                         docker_image.push('latest')
+                     }
+                 }
+             }
+         }
     }
 }
