@@ -81,18 +81,13 @@ pipeline {
             }
         }
        stage("Build & Push Docker Image") {
-             steps {
-                 script {
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image = docker.build "${IMAGE_NAME}"
-                     }
-                     docker.withRegistry('',DOCKER_PASS) {
-                         docker_image.push("${IMAGE_TAG}")
-                         docker_image.push('latest')
-                     }
-                 }
-             }
-         }
-
+    steps {
+        script {
+            docker_image = docker.build("${IMAGE_NAME}")
+            docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
+                docker_image.push("${IMAGE_TAG}")
+                docker_image.push('latest')
+            }
+        }
     }
 }
