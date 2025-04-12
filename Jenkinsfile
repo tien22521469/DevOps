@@ -29,7 +29,7 @@ pipeline {
 
         stage("Build Application") {
             steps {
-                sh 'mvn -f javaapi/pom.xml clean package'
+                sh 'mvn -f emartapp/javaapi/pom.xml clean package'
             }
         }
 
