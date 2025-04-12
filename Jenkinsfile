@@ -42,8 +42,18 @@ pipeline {
         stage("Sonarqube Analysis") {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=devops \
-                    -Dsonar.projectKey=devops'''
+                    sh '''
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectName=devops \
+                        -Dsonar.projectKey=devops \
+                        -Dsonar.sources=emartapp/javaapi/src/main/java \
+                        -Dsonar.java.binaries=emartapp/javaapi/target/classes \
+                        -Dsonar.java.test.binaries=emartapp/javaapi/target/test-classes \
+                        -Dsonar.java.libraries=emartapp/javaapi/target/dependency/*.jar \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=emartapp/javaapi/target/site/jacoco/jacoco.xml \
+                        -Dsonar.java.source=17 \
+                        -Dsonar.sourceEncoding=UTF-8
+                    '''
                 }
             }
         }
