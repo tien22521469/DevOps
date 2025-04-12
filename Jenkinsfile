@@ -9,10 +9,10 @@ pipeline {
         SCANNER_HOME = tool 'sonar-scanner'
         APP_NAME = "devops"
         RELEASE = "1.0.0"
-        DOCKER_CREDENTIALS = credentials('docker-cred')
         DOCKER_USER = "nguyentienuit"
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        DOCKER_CREDENTIALS = credentials('docker-cred')
     }
     stages {
         stage("Cleanup Workspace") {
@@ -49,10 +49,10 @@ pipeline {
                         -Dsonar.sources=emartapp/javaapi/src/main/java \
                         -Dsonar.java.binaries=emartapp/javaapi/target/classes \
                         -Dsonar.java.test.binaries=emartapp/javaapi/target/test-classes \
-                        -Dsonar.java.libraries=${WORKSPACE}/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
+                        -Dsonar.java.libraries=/var/lib/jenkins/workspace/devops/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
                         -Dsonar.java.source=17 \
                         -Dsonar.sourceEncoding=UTF-8 \
-                        -Dsonar.java.test.libraries=${WORKSPACE}/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
+                        -Dsonar.java.test.libraries=/var/lib/jenkins/workspace/devops/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
                         -Dsonar.exclusions=**/*.xml,**/*.properties \
                         -Dsonar.test.inclusions=**/*Test.java,**/*Tests.java \
                         -Dsonar.coverage.exclusions=**/*Application.java,**/model/**,**/entity/**
@@ -64,7 +64,7 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-Token'
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
                 }
             }
         }
@@ -85,8 +85,8 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(
                         credentialsId: 'docker-cred',
-                        usernameVariable: 'DOCKER_USERNAME',
-                        passwordVariable: 'DOCKER_PASSWORD'
+                        passwordVariable: 'DOCKER_PASSWORD',
+                        usernameVariable: 'DOCKER_USERNAME'
                     )]) {
                         sh '''
                             echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
@@ -95,6 +95,7 @@ pipeline {
                             docker push ${IMAGE_NAME}:${IMAGE_TAG}
                             docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
                             docker push ${IMAGE_NAME}:latest
+                            docker logout
                         '''
                     }
                 }
@@ -103,7 +104,12 @@ pipeline {
     }
     post {
         always {
-            sh 'docker logout'
+            script {
+                sh '''
+                    docker system prune -f
+                    docker logout || true
+                '''
+            }
         }
     }
 }
