@@ -35,7 +35,7 @@ pipeline {
 
         stage("Test Application") {
             steps {
-                sh "mvn test"
+                sh "mvn -f emartapp/javaapi/pom.xml test"
             }
         }
 
