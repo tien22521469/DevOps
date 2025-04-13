@@ -83,13 +83,15 @@ pipeline {
        stage("Build & Push Docker Image") {
              steps {
                script {
-                   sh """
-                       docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                       docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
-                       docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-                       docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                       docker push ${IMAGE_NAME}:latest
-                   """
+                   withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                       sh """
+                           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+                           docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                           docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                           docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                           docker push ${IMAGE_NAME}:latest
+                       """
+                   }
                }
              }
          }
