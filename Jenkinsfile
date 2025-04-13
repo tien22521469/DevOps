@@ -96,8 +96,7 @@ pipeline {
                }
              }
          }
-<<<<<<< HEAD
-=======
+
         stage("Trivy Image Scan") {
              steps {
                  script {
@@ -133,6 +132,5 @@ pipeline {
               	 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
         }
      }
->>>>>>> 4b5436fb5fd736239e3eb529d294f91707461d3b
     }
 }
