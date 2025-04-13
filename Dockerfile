@@ -1,6 +1,6 @@
 
 # Use Eclipse Temurin with full path
-FROM adoptopenjdk/openjdk17:alpine
+FROM amazoncorretto:17-alpine
 
 # Set working directory
 WORKDIR /app
