@@ -102,7 +102,7 @@ pipeline {
                  }
              }
          }
-	     stage ('Cleanup Artifacts') {
+	stage ('Cleanup Artifacts') {
              steps {
                  script {
                       sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
@@ -110,5 +110,17 @@ pipeline {
                  }
              }
          }
+	
+     	post {
+       	 always {
+           	emailext attachLog: true,
+              	 subject: "'${currentBuild.result}'",
+        	 body: "Project: ${env.JOB_NAME}<br/>" +
+              	     "Build Number: ${env.BUILD_NUMBER}<br/>" +
+                     "URL: ${env.BUILD_URL}<br/>",
+               	 to: '22521469@gm.uit.edu.vn',                              
+              	 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+        }
+     }
     }
 }
