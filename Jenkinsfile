@@ -28,17 +28,17 @@ pipeline {
             }
         }
 
-        // stage("Build Application") {
-        //     steps {
-        //         sh 'mvn -f emartapp/javaapi/pom.xml clean package'
-        //     }
-        // }
+        stage("Build Application") {
+            steps {
+                sh 'mvn -f emartapp/javaapi/pom.xml clean package'
+            }
+        }
 
-        // stage("Test Application") {
-        //     steps {
-        //         sh "mvn -f emartapp/javaapi/pom.xml test"
-        //     }
-        // }
+        stage("Test Application") {
+            steps {
+                sh "mvn -f emartapp/javaapi/pom.xml test"
+            }
+        }
 
         stage("Sonarqube Analysis") {
             steps {
