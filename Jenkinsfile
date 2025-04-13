@@ -13,6 +13,7 @@ pipeline {
         DOCKER_PASS = 'tien160904'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+	JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
     stages {
         stage("Cleanup Workspace") {
@@ -95,5 +96,43 @@ pipeline {
                }
              }
          }
+<<<<<<< HEAD
+=======
+        stage("Trivy Image Scan") {
+             steps {
+                 script {
+	              sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image nguyentienuit/devops:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table > trivyimage.txt')
+                 }
+             }
+         }
+	stage ('Cleanup Artifacts') {
+             steps {
+                 script {
+                      sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
+                      sh "docker rmi ${IMAGE_NAME}:latest"
+                 }
+             }
+         }
+	stage("Trigger CD Pipeline") {
+            steps {
+                script {
+                    sh "curl -v -k --user admin:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-54-252-66-14.ap-southeast-2.compute.amazonaws.com:8080/job/devops-CD/buildWithParameters?token=gitops-token'"
+                }
+            }
+         }
+     }
+	
+     	post {
+       	 always {
+           	emailext attachLog: true,
+              	 subject: "'${currentBuild.result}'",
+        	 body: "Project: ${env.JOB_NAME}<br/>" +
+              	     "Build Number: ${env.BUILD_NUMBER}<br/>" +
+                     "URL: ${env.BUILD_URL}<br/>",
+               	 to: '22521469@gm.uit.edu.vn',                              
+              	 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+        }
+     }
+>>>>>>> 4b5436fb5fd736239e3eb529d294f91707461d3b
     }
 }
