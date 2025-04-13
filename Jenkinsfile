@@ -35,15 +35,28 @@ pipeline {
 
         stage("Test Application") {
             steps {
-                sh "mvn test"
+                sh "mvn -f emartapp/javaapi/pom.xml test"
             }
         }
 
         stage("Sonarqube Analysis") {
             steps {
                 withSonarQubeEnv('SonarQube-Server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=devops \
-                    -Dsonar.projectKey=devops'''
+                    sh '''
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectName=devops \
+                        -Dsonar.projectKey=devops \
+                        -Dsonar.sources=emartapp/javaapi/src/main/java \
+                        -Dsonar.java.binaries=emartapp/javaapi/target/classes \
+                        -Dsonar.java.test.binaries=emartapp/javaapi/target/test-classes \
+                        -Dsonar.java.libraries=${WORKSPACE}/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
+                        -Dsonar.java.source=17 \
+                        -Dsonar.sourceEncoding=UTF-8 \
+                        -Dsonar.java.test.libraries=${WORKSPACE}/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
+                        -Dsonar.exclusions=**/*.xml,**/*.properties \
+                        -Dsonar.test.inclusions=**/*Test.java,**/*Tests.java \
+                        -Dsonar.coverage.exclusions=**/*Application.java,**/model/**,**/entity/**
+                    '''
                 }
             }
         }
@@ -67,5 +80,20 @@ pipeline {
                 sh "trivy fs . > trivyfs.txt"
             }
         }
+       stage("Build & Push Docker Image") {
+             steps {
+               script {
+                   withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                       sh """
+                           echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+                           docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                           docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                           docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                           docker push ${IMAGE_NAME}:latest
+                       """
+                   }
+               }
+             }
+         }
     }
 }
