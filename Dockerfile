@@ -1,5 +1,5 @@
 # Use OpenJDK 17 as base image
-FROM eclipse-temurin:17-jdk-alpine
+FROM node:19-alpine3.15
 
 # Set working directory
 WORKDIR /app
