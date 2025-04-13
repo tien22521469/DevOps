@@ -83,9 +83,13 @@ pipeline {
        stage("Build & Push Docker Image") {
              steps {
                script {
-                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
-                            sh "docker build -t nguyentienuit/devops:latest ."
-                    }
+                   sh """
+                       docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                       docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                       docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+                       docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                       docker push ${IMAGE_NAME}:latest
+                   """
                }
              }
          }
