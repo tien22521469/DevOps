@@ -1,6 +1,6 @@
 
 # Use Eclipse Temurin with full path
-FROM amazoncorretto:17-alpine
+FROM eclipse-temurin:21
 
 # Set working directory
 WORKDIR /app
