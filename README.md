@@ -2,10 +2,10 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Triển khai ứng dụng bán hàng trên AWS EKS với GitOps</title>
 </head>
 <body>
   <h1>Xây dựng và triển khai ứng dụng bán hàng dùng AWS EKS và GitOps</h1>
+  <img src="emartapp/nodeapi/images/devops.png" style="max-width: 100%">
 
   <h2>Project Overview</h2>
   <p>Đồ án này trình bày cách triển khai web microservice bán hàng bằng một bộ công cụ và phương pháp DevOps. Các công cụ chính bao gồm:</p>
@@ -23,6 +23,7 @@
   </ul>
 
   <h2>Kiến trúc hệ thống</h2>
+  <img src="emartapp/nodeapi/images/micro.png" style="max-width: 100%"
   <p>Quy trình triển khai bao gồm các bước chính sau:</p>
 
   <h3>1. Quản lý mã nguồn</h3>
