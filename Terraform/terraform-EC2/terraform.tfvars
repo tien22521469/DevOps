@@ -1,4 +1,4 @@
-instance_type = "t2.medium"
+instance_type = "t2.small"
 ami           = "ami-0d02292614a3b0df1"   # Ubuntu 22.04 LTS trong ap-southeast-2
 key_name      = "key"          # Không cần .pem
 volume_size   = 30
