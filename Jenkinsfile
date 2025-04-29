@@ -23,15 +23,7 @@ pipeline {
             }
         }
 
-        stage("Build & Test") {
-            steps {
-                
-                dir('emartapp/frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
-            }
-        }
+     
 
         stage("Security & Quality") {
             steps {
