@@ -26,6 +26,7 @@ pipeline {
      stage("Build & Test") {
             steps {
                 dir('emartapp/javaapi') {
+                    sh 'chmod +x ./mvnw'
                     sh './mvnw clean package'
                 }
                 dir('emartapp/frontend') {
