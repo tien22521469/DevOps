@@ -27,7 +27,8 @@ pipeline {
             steps {
                 dir('emartapp/javaapi') {
                     sh 'mvn clean package'
-                    sh "mvn -e -X test"
+                    sh './mvnw clean package -DskipTests'
+
                 }
                 dir('emartapp/frontend') {
                     sh 'npm install'
