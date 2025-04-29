@@ -33,7 +33,7 @@ pipeline {
                     sh 'pwd'
                     sh 'ls -la'
                     sh 'find . -type f -name "package.json"'
-                    sh 'cd emartapp/Frontend/client && pwd && ls -la'
+                    sh 'cd client && pwd && ls -la'
                     sh 'npm install -g @angular/cli'
                     sh 'npm install'
                     sh 'ng build'
