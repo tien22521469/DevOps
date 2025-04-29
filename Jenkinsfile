@@ -34,6 +34,9 @@ pipeline {
                     sh 'ls -la'
                     sh 'find . -type f -name "package.json"'
                     sh 'find . -type d -name "Frontend"'
+                    sh 'cd Frontend && npm install -g @angular/cli'
+                    sh 'cd Frontend && npm install'
+                    sh 'cd Frontend && ng build'
                 }
             }
         }
