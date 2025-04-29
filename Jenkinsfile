@@ -9,7 +9,7 @@ pipeline {
         SCANNER_HOME = tool 'sonar-scanner'
         APP_NAME = "devops"
         RELEASE = "1.0.0"
-        IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
+        // IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         DOCKER_REGISTRY = 'docker.io'
         AWS_REGION = 'us-east-1'
