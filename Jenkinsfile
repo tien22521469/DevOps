@@ -29,7 +29,7 @@ pipeline {
                     sh 'chmod +x ./mvnw'
                     sh './mvnw clean package -DskipTests'
                 }
-                dir('emartapp/frontend') {
+                dir('emartapp/frontend/client') {
                     sh 'npm install'
                     sh 'npm run build'
                 }
