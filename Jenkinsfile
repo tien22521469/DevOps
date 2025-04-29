@@ -11,7 +11,7 @@ pipeline {
         RELEASE = "1.0.0"
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        DOCKER_REGISTRY = 'your-docker-registry'
+        DOCKER_REGISTRY = 'docker.io'
         AWS_REGION = 'us-east-1'
         EKS_CLUSTER_NAME = 'emartapp-cluster'
     }
@@ -65,73 +65,6 @@ pipeline {
             steps {
                 sh "trivy fs . > trivyfs.txt"
             }
-        }
-
-        stage("Build & Push Docker Images") {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh """
-                            echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-                            
-                            # Build and push backend image
-                            docker build -t ${DOCKER_REGISTRY}/emartapp-backend:${BUILD_NUMBER} --file Dockerfile ./emartapp/javaapi
-                            docker push ${DOCKER_REGISTRY}/emartapp-backend:${BUILD_NUMBER}
-                            
-                            # Build and push frontend image
-                            docker build -t ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER} --file emartapp/frontend/Dockerfile ./emartapp/frontend
-                            docker push ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
-                            
-                            # Scan images
-                            trivy image ${DOCKER_REGISTRY}/emartapp-backend:${BUILD_NUMBER}
-                            trivy image ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
-                        """
-                    }
-                }
-            }
-        }
-
-        stage("Trigger CD Pipeline") {
-            steps {
-                script {
-                    // Trigger CD pipeline using Jenkins CLI
-                    withCredentials([usernamePassword(credentialsId: 'jenkins', passwordVariable: 'JENKINS_TOKEN', usernameVariable: 'JENKINS_USER')]) {
-                        sh """
-                            # Get Jenkins CLI JAR
-                            curl -o jenkins-cli.jar http://localhost:8080/jnlpJars/jenkins-cli.jar
-                            
-                            # Trigger CD pipeline
-                            java -jar jenkins-cli.jar -s http://localhost:8080 \
-                                -auth ${JENKINS_USER}:${JENKINS_TOKEN} \
-                                build devops-gitops \
-                                -p DOCKER_REGISTRY=${DOCKER_REGISTRY} \
-                                -p BUILD_NUMBER=${BUILD_NUMBER} \
-                                -p AWS_REGION=${AWS_REGION} \
-                                -p EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}
-                        """
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
-        }
-        success {
-            emailext (
-                subject: "Pipeline Successful: ${currentBuild.fullDisplayName}",
-                body: "Your pipeline has completed successfully. Check console output at ${env.BUILD_URL}",
-                to: '${DEFAULT_RECIPIENTS}'
-            )
-        }
-        failure {
-            emailext (
-                subject: "Pipeline Failed: ${currentBuild.fullDisplayName}",
-                body: "Your pipeline has failed. Check console output at ${env.BUILD_URL}",
-                to: '${DEFAULT_RECIPIENTS}'
-            )
         }
     }
 }
