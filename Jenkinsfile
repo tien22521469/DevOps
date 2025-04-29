@@ -29,9 +29,10 @@ pipeline {
                     sh 'chmod +x ./mvnw'
                     sh './mvnw clean package -DskipTests'
                 }
-                dir('emartapp/frontend/client') {
+                 dir('emartapp/frontend/client') {
+                    sh 'npm install -g @angular/cli'
                     sh 'npm install'
-                    sh './node_modules/.bin/ng build'
+                    sh 'ng build'
                 }
             }
         }
