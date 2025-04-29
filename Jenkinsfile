@@ -29,14 +29,11 @@ pipeline {
                     sh 'chmod +x ./mvnw'
                     sh './mvnw clean package -DskipTests'
                 }
-                 dir('emartapp/Frontend') {
+                 dir('emartapp') {
                     sh 'pwd'
                     sh 'ls -la'
                     sh 'find . -type f -name "package.json"'
-                    sh 'cd client && pwd && ls -la'
-                    sh 'npm install -g @angular/cli'
-                    sh 'npm install'
-                    sh 'ng build'
+                    sh 'find . -type d -name "Frontend"'
                 }
             }
         }
