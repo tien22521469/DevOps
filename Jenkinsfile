@@ -23,7 +23,17 @@ pipeline {
             }
         }
 
-     
+     stage("Build & Test") {
+            steps {
+                dir('emartapp/javaapi') {
+                    sh './mvnw clean package'
+                }
+                dir('emartapp/frontend') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
 
         stage("Security & Quality") {
             steps {
