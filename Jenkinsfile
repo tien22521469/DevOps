@@ -30,9 +30,11 @@ pipeline {
                     sh './mvnw clean package -DskipTests'
                 }
                  dir('emartapp/Frontend/client') {
-                     sh 'pwd'
+                    sh 'pwd'
                     sh 'ls -la'
-                    sh 'cat package.json'
+                    sh 'find . -type f -name "package.json"'
+                    sh 'cd .. && pwd && ls -la'
+                    sh 'cd ../.. && pwd && ls -la'
                     sh 'npm install -g @angular/cli'
                     sh 'npm install'
                     sh 'ng build'
