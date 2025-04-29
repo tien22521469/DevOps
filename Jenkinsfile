@@ -31,7 +31,7 @@ pipeline {
                 }
                 dir('emartapp/frontend/client') {
                     sh 'npm install'
-                    sh 'npm run build'
+                    sh './node_modules/.bin/ng build'
                 }
             }
         }
