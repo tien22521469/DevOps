@@ -26,7 +26,8 @@ pipeline {
         stage("Build & Test") {
             steps {
                 dir('emartapp/javaapi') {
-                    sh './mvnw clean package'
+                    sh 'mvn -f emartapp/Backend/javaapi/pom.xml clean package'
+                    sh "mvn -f emartapp/Backend/javaapi/pom.xml test"
                 }
                 dir('emartapp/frontend') {
                     sh 'npm install'
