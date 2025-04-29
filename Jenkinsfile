@@ -9,34 +9,61 @@ pipeline {
         SCANNER_HOME = tool 'sonar-scanner'
         APP_NAME = "devops"
         RELEASE = "1.0.0"
-        DOCKER_USER = "nguyentienuit"
-        DOCKER_PASS = 'tien160904'
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-	JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+        DOCKER_REGISTRY = 'docker.io'
+        AWS_REGION = 'us-east-1'
+        EKS_CLUSTER_NAME = 'emartapp-cluster'
     }
     stages {
-        stage("Cleanup Workspace") {
+        stage("Cleanup & Checkout") {
             steps {
                 cleanWs()
-            }
-        }
-
-        stage("Checkout from Git") {
-            steps {
                 git branch: 'main', credentialsId: 'github', url: 'https://github.com/tien22521469/DevOps.git'
             }
         }
 
-        stage("Build Application") {
+        stage("Build & Test") {
             steps {
-                sh 'mvn -f emartapp/javaapi/pom.xml clean package'
+                dir('emartapp/javaapi') {
+                    sh './mvnw clean package'
+                }
+                dir('emartapp/frontend') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
             }
         }
 
-        stage("Test Application") {
+        stage("Security & Quality") {
             steps {
-                sh "mvn -f emartapp/javaapi/pom.xml test"
+                script {
+                    // SonarQube Analysis
+                    withSonarQubeEnv('SonarQube-Server') {
+                        sh '''
+                            ${SCANNER_HOME}/bin/sonar-scanner \
+                            -Dsonar.projectName=devops \
+                            -Dsonar.projectKey=devops \
+                            -Dsonar.sources=emartapp/javaapi/src/main/java \
+                            -Dsonar.java.binaries=emartapp/javaapi/target/classes \
+                            -Dsonar.java.test.binaries=emartapp/javaapi/target/test-classes \
+                            -Dsonar.java.libraries=${WORKSPACE}/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
+                            -Dsonar.java.source=17 \
+                            -Dsonar.sourceEncoding=UTF-8 \
+                            -Dsonar.java.test.libraries=${WORKSPACE}/emartapp/javaapi/target/book-work-0.0.1-SNAPSHOT.jar \
+                            -Dsonar.exclusions=**/*.xml,**/*.properties \
+                            -Dsonar.test.inclusions=**/*Test.java,**/*Tests.java \
+                            -Dsonar.coverage.exclusions=**/*Application.java,**/model/**,**/entity/**
+                        '''
+                    }
+                    waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-Token'
+                    
+                }
+            }
+        }
+        stage('TRIVY FS SCAN') {
+            steps {
+                sh "trivy fs . > trivyfs.txt"
             }
         }
     }
