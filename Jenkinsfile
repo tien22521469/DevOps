@@ -55,7 +55,14 @@ pipeline {
                         '''
                     }
                     waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-Token'
-                    
+
+                     // Snyk Security Scan
+                    withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+                        sh '''
+                            snyk auth ${SNYK_TOKEN}
+                            snyk test --all-projects
+                        '''
+                    }
                 }
             }
         }
