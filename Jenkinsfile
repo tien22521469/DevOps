@@ -16,6 +16,13 @@ pipeline {
         EKS_CLUSTER_NAME = 'emartapp-cluster'
     }
     stages {
+        stage('Install Snyk CLI') {
+            steps {
+                sh 'npm install -g snyk'
+            }
+        }
+    }
+    stages {
         stage("Cleanup & Checkout") {
             steps {
                 cleanWs()
