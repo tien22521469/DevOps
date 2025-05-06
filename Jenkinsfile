@@ -11,7 +11,7 @@ pipeline {
         RELEASE = "1.0.0"
         IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        DOCKER_REGISTRY = nguyentienuit
+        DOCKER_REGISTRY = "nguyentienuit"
         AWS_REGION = 'us-east-1'
         EKS_CLUSTER_NAME = 'emartapp-cluster'
     }
