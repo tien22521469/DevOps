@@ -80,16 +80,26 @@ pipeline {
                         sh """
                             echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
                             
-                            # Build and push backend image
-                            docker build -t ${DOCKER_REGISTRY}/emartapp-backend:${BUILD_NUMBER} --file Dockerfile ./emartapp/javaapi
-                            docker push ${DOCKER_REGISTRY}/emartapp-backend:${BUILD_NUMBER}
-                            
-                            # Build and push frontend image
+                            # Build and push javaapi (backend)
+                            docker build -t ${DOCKER_REGISTRY}/emartapp-javaapi:${BUILD_NUMBER} --file emartapp/javaapi/Dockerfile ./emartapp/javaapi
+                            docker push ${DOCKER_REGISTRY}/emartapp-javaapi:${BUILD_NUMBER}
+
+                            # Build and push nodeapi (backend)
+                            docker build -t ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER} --file emartapp/nodeapi/Dockerfile ./emartapp/nodeapi
+                            docker push ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER}
+
+                            # Build and push nginx (backend)
+                            docker build -t ${DOCKER_REGISTRY}/emartapp-nginx:${BUILD_NUMBER} --file emartapp/nginx/Dockerfile ./emartapp/nginx
+                            docker push ${DOCKER_REGISTRY}/emartapp-nginx:${BUILD_NUMBER}
+
+                            # Build and push frontend
                             docker build -t ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER} --file emartapp/frontend/Dockerfile ./emartapp/frontend
                             docker push ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
-                            
+
                             # Scan images
-                            trivy image ${DOCKER_REGISTRY}/emartapp-backend:${BUILD_NUMBER}
+                            trivy image ${DOCKER_REGISTRY}/emartapp-javaapi:${BUILD_NUMBER}
+                            trivy image ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER}
+                            trivy image ${DOCKER_REGISTRY}/emartapp-nginx:${BUILD_NUMBER}
                             trivy image ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
                         """
                     }
