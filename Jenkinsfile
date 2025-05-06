@@ -88,10 +88,6 @@ pipeline {
                             docker build -t ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER} --file emartapp/nodeapi/Dockerfile ./emartapp/nodeapi
                             docker push ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER}
 
-                            # Build and push nginx (backend)
-                            docker build -t ${DOCKER_REGISTRY}/emartapp-nginx:${BUILD_NUMBER} --file emartapp/nginx/Dockerfile ./emartapp/nginx
-                            docker push ${DOCKER_REGISTRY}/emartapp-nginx:${BUILD_NUMBER}
-
                             # Build and push frontend
                             docker build -t ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER} --file emartapp/frontend/Dockerfile ./emartapp/frontend
                             docker push ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
@@ -99,7 +95,6 @@ pipeline {
                             # Scan images
                             trivy image ${DOCKER_REGISTRY}/emartapp-javaapi:${BUILD_NUMBER}
                             trivy image ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER}
-                            trivy image ${DOCKER_REGISTRY}/emartapp-nginx:${BUILD_NUMBER}
                             trivy image ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
                         """
                     }
