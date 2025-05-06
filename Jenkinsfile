@@ -89,7 +89,7 @@ pipeline {
                             docker push ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER}
 
                             # Build and push frontend
-                            docker build -t ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER} --file emartapp/Frontend/Dockerfile ./emartapp/Frontend
+                            docker build -t ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER} --file emartapp/Frontend/client/Dockerfile ./emartapp/Frontend/client
                             docker push ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
 
                             # Scan images
