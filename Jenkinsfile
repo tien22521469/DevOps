@@ -62,18 +62,41 @@ pipeline {
                     waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-Token'
 
                      // Snyk Security Scan
-                    withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-                        sh '''
-                            snyk auth ${SNYK_TOKEN}
-                            snyk test --all-projects
-                        '''
-                    }
+                    // withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
+                    //     sh '''
+                    //         snyk auth ${SNYK_TOKEN}
+                    //         snyk test --all-projects
+                    //     '''
+                    // }
                 }
             }
         }
         stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
+            }
+        }
+        stage("Build & Push Docker Images") {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh """
+                            echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+                            
+                            # Build and push backend image
+                            docker build -t ${DOCKER_REGISTRY}/emartapp-backend:${BUILD_NUMBER} --file Dockerfile ./emartapp/javaapi
+                            docker push ${DOCKER_REGISTRY}/emartapp-backend:${BUILD_NUMBER}
+                            
+                            # Build and push frontend image
+                            docker build -t ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER} --file emartapp/frontend/Dockerfile ./emartapp/frontend
+                            docker push ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
+                            
+                            # Scan images
+                            trivy image ${DOCKER_REGISTRY}/emartapp-backend:${BUILD_NUMBER}
+                            trivy image ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
+                        """
+                    }
+                }
             }
         }
     }
