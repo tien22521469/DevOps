@@ -32,11 +32,7 @@ pipeline {
                 
             }
         }
-        stage('Install Snyk') {
-          steps {
-            sh 'npm install -g snyk'
-          }
-        }
+       
 
         stage("Security & Quality") {
             steps {
