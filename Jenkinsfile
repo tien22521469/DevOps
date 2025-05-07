@@ -87,14 +87,14 @@ pipeline {
                             docker build -t ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER} --file emartapp/nodeapi/Dockerfile ./emartapp/nodeapi
                             docker push ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER}
 
-                            # Build and push frontend
-                            docker build -t ${DOCKER_REGISTRY}/emartapp-client:${BUILD_NUMBER} --file emartapp/client/Dockerfile ./emartapp/client
-                            docker push ${DOCKER_REGISTRY}/emartapp-client:${BUILD_NUMBER}
+                           # Build and push frontend
+                            docker build -t ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER} --file emartapp/frontend/client/Dockerfile ./emartapp/Frontend/client
+                            docker push ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
 
                             # Scan images
                             trivy image ${DOCKER_REGISTRY}/emartapp-javaapi:${BUILD_NUMBER}
                             trivy image ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER}
-                            trivy image ${DOCKER_REGISTRY}/emartapp-client:${BUILD_NUMBER}
+                            trivy image ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
                         """
                     }
                 }
