@@ -101,4 +101,23 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            emailext (
+                subject: "Pipeline Successful: ${currentBuild.fullDisplayName}",
+                body: "Your pipeline has completed successfully. Check console output at ${env.BUILD_URL}",
+                to: '${DEFAULT_RECIPIENTS}'
+            )
+        }
+        failure {
+            emailext (
+                subject: "Pipeline Failed: ${currentBuild.fullDisplayName}",
+                body: "Your pipeline has failed. Check console output at ${env.BUILD_URL}",
+                to: '${DEFAULT_RECIPIENTS}'
+            )
+        }
+    }
 }
