@@ -58,6 +58,7 @@ pipeline {
                     //Snyk Security Scan
                     withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
                         sh '''
+                             npm install -g snyk
                             snyk auth ${SNYK_TOKEN}
                             snyk test --all-projects || true
                             snyk monitor --all-projects || true
