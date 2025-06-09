@@ -18,7 +18,7 @@
     <li>Aqua Trivy: Công cụ quét lỗ hổng bảo mật.</li>
     <li>Docker: Công cụ chứa để tạo hình ảnh.</li>
     <li>AWS EKS: Nền tảng quản lý vùng chứa.</li>
-    <li>ArgoCD: Công cụ triển khai liên tục.</li>
+   
     
   </ul>
 
