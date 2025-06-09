@@ -105,7 +105,7 @@ pipeline {
             steps {
                 script {
                     // Trigger CD pipeline using Jenkins CLI
-                    withCredentials([usernamePassword(credentialsId: 'JENKINS_API_TOKEN', passwordVariable: 'JENKINS_TOKEN', usernameVariable: 'admin')]) {
+                    withCredentials([usernamePassword(credentialsId: 'JENKINS_API_TOKEN', passwordVariable: 'JENKINS_TOKEN', usernameVariable: 'JENKINS_USER')]) {
                         sh """
                             # Get Jenkins CLI JAR
                             curl -o jenkins-cli.jar http://34.228.8.171:8080/jnlpJars/jenkins-cli.jar
