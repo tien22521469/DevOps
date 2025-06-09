@@ -114,7 +114,8 @@ pipeline {
                             java -jar jenkins-cli.jar -s http://34.228.8.171:8080 \
                                 -auth admin:${JENKINS_TOKEN} \
                                 build devops-CD \
-                                -p DOCKER_REGISTRY=${DOCKER_REGISTRY} \
+                                p DOCKER_REGISTRY=${DOCKER_REGISTRY} \
+                                -p BUILD_NUMBER=${BUILD_NUMBER} \
                                 -p EKS_CLUSTER_NAME=${EKS_CLUSTER_NAME}
                         """
                     }
