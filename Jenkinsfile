@@ -23,7 +23,7 @@ pipeline {
             }
         }
 
-     stage("Build & Test") {
+        stage("Build & Test") {
             steps {
                 dir('emartapp/javaapi') {
                     sh 'chmod +x ./mvnw'
@@ -31,7 +31,6 @@ pipeline {
                 }
             }
         }
-       
 
         stage("Security & Quality") {
             steps {
@@ -56,7 +55,7 @@ pipeline {
                     }
                     waitForQualityGate abortPipeline: false, credentialsId: 'SonarQube-Token'
 
-                     //Snyk Security Scan
+                    //Snyk Security Scan
                     withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
                         sh '''
                             snyk auth ${SNYK_TOKEN}
@@ -87,7 +86,7 @@ pipeline {
                             docker build -t ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER} --file emartapp/nodeapi/Dockerfile ./emartapp/nodeapi
                             docker push ${DOCKER_REGISTRY}/emartapp-nodeapi:${BUILD_NUMBER}
 
-                           # Build and push frontend
+                            # Build and push frontend
                             docker build -t ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER} --file emartapp/client/Dockerfile ./emartapp/client
                             docker push ${DOCKER_REGISTRY}/emartapp-frontend:${BUILD_NUMBER}
 
@@ -101,7 +100,7 @@ pipeline {
             }
         }
     
-    stage("Trigger CD Pipeline") {
+        stage("Trigger CD Pipeline") {
             steps {
                 script {
                     // Trigger CD pipeline using Jenkins CLI
@@ -123,6 +122,7 @@ pipeline {
                 }
             }
         }
+    }
     post {
         always {
             cleanWs()
@@ -142,4 +142,4 @@ pipeline {
             )
         }
     }
-}
+} 
