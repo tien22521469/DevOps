@@ -19,7 +19,7 @@
     <li>Docker: Công cụ chứa để tạo hình ảnh.</li>
     <li>AWS EKS: Nền tảng quản lý vùng chứa.</li>
     <li>ArgoCD: Công cụ triển khai liên tục.</li>
-    <li>Prometheus & Grafana: Công cụ giám sát và cảnh báo.</li>
+    
   </ul>
 
   <h2>Kiến trúc hệ thống</h2>
