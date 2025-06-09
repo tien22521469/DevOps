@@ -105,14 +105,14 @@ pipeline {
             steps {
                 script {
                     // Trigger CD pipeline using Jenkins CLI
-                    withCredentials([usernamePassword(credentialsId: 'JENKINS_API_TOKEN', passwordVariable: 'JENKINS_TOKEN', usernameVariable: 'JENKINS_USER')]) {
+                    withCredentials([usernamePassword(credentialsId: 'JENKINS_API_TOKEN', passwordVariable: 'JENKINS_TOKEN', usernameVariable: 'JENKINS_USERNAME')]) {
                         sh """
                             # Get Jenkins CLI JAR
                             curl -o jenkins-cli.jar http://34.228.8.171:8080/jnlpJars/jenkins-cli.jar
                             
                             # Trigger CD pipeline
                             java -jar jenkins-cli.jar -s http://34.228.8.171:8080 \
-                                -auth ${JENKINS_USER}:${JENKINS_TOKEN} \
+                                -auth ${JENKINS_USERNAME}:${JENKINS_TOKEN} \
                                 build devops-gitops \
                                 -p DOCKER_REGISTRY=${DOCKER_REGISTRY} \
                                 -p BUILD_NUMBER=${BUILD_NUMBER} \
