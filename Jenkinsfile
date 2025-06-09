@@ -141,5 +141,5 @@ pipeline {
                 to: '${DEFAULT_RECIPIENTS}'
             )
         }
-    }
+    
 }
