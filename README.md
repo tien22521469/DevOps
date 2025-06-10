@@ -1,100 +1,88 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-</head>
-<body>
-  <h1>Xây dựng và triển khai ứng dụng bán hàng dùng AWS EKS và GitOps</h1>
-  <img src="emartapp/nodeapi/images/devops.png" style="max-width: 100%">
+# Xây dựng và triển khai ứng dụng bán hàng dùng AWS EKS và GitOps
 
-  <h2>Project Overview</h2>
-  <p>Đồ án này trình bày cách triển khai web microservice bán hàng bằng một bộ công cụ và phương pháp DevOps. Các công cụ chính bao gồm:</p>
-  <ul>
-    <li>Terraform: Công cụ Infrastructure as Code (IaC) để tạo cơ sở hạ tầng AWS như các phiên bản EC2 và cụm EKS.</li>
-    <li>GitHub: Quản lý mã nguồn.</li>
-    <li>Jenkins: Công cụ tự động hóa CI/CD.</li>
-    <li>SonarQube: Công cụ phân tích chất lượng mã và cổng chất lượng.</li>
-    <li>NPM: Công cụ xây dựng cho NodeJS.</li>
-    <li>Aqua Trivy: Công cụ quét lỗ hổng bảo mật.</li>
-    <li>Docker: Công cụ chứa để tạo hình ảnh.</li>
-    <li>AWS EKS: Nền tảng quản lý vùng chứa.</li>
-    <li>ArgoCD: Công cụ triển khai liên tục.</li>
-    <li>Prometheus & Grafana: Công cụ giám sát và cảnh báo.</li>
-  </ul>
+![image](https://github.com/user-attachments/assets/9505b39c-d576-41f1-874e-a7a2a07ac60d)
 
-  <h2>Kiến trúc hệ thống</h2>
-  <img src="emartapp/nodeapi/images/micro.png" style="max-width: 100%"
-  <p>Quy trình triển khai bao gồm các bước chính sau:</p>
 
-  <h3>1. Quản lý mã nguồn</h3>
-  <ul>
-    <li>Developer thực hiện đẩy mã nguồn lên Git repository.</li>
-  </ul>
+## Project Overview
 
-  <h3>2. Tích hợp liên tục (CI) – Jenkins</h3>
-  <p>Jenkins đóng vai trò điều phối toàn bộ pipeline CI:</p>
-  <ul>
-    <li>Biên dịch và kiểm thử với Apache Maven.</li>
-    <li>Phân tích mã nguồn tĩnh với SonarQube để đánh giá chất lượng mã và nợ kỹ thuật.</li>
-    <li>Quét bảo mật:
-      <ul>
-        <li>Trivy FS scan: Quét mã nguồn và thư viện.</li>
-        <li>Trivy image scan: Quét lỗ hổng bảo mật trong Docker image.</li>
-      </ul>
-    </li>
-    <li>Cài đặt thư viện phụ thuộc thông qua NPM (nếu là ứng dụng Node.js).</li>
-    <li>Đóng gói Docker: Xây dựng Docker image và đẩy lên Docker Registry.</li>
-    <li>Quét bảo mật Docker Image: Trivy scan image.</li>
-  </ul>
+Đồ án này trình bày cách triển khai web microservice bán hàng bằng một bộ công cụ và phương pháp DevOps.  
+Các công cụ chính bao gồm:
 
-  <h3>3. Thông báo trạng thái</h3>
-  <ul>
-    <li>Sau khi pipeline chạy xong, Jenkins gửi thông báo qua email cho developer (thành công hoặc thất bại).</li>
-  </ul>
+- **Terraform**: Công cụ Infrastructure as Code (IaC) để tạo cơ sở hạ tầng AWS như các phiên bản EC2 và cụm EKS.
+- **GitHub**: Quản lý mã nguồn.
+- **Jenkins**: Công cụ tự động hóa CI/CD.
+- **SonarQube**: Công cụ phân tích chất lượng mã và cổng chất lượng.
+- **NPM**: Công cụ xây dựng cho NodeJS.
+- **Aqua Trivy**: Công cụ quét lỗ hổng bảo mật.
+- **Docker**: Công cụ chứa để tạo hình ảnh.
+- **AWS EKS**: Nền tảng quản lý vùng chứa.
+- **ArgoCD**: Công cụ triển khai liên tục.
+- **Prometheus & Grafana**: Công cụ giám sát và cảnh báo.
 
-  <h3>4. Triển khai liên tục (CD) theo GitOps</h3>
-  <ul>
-    <li>Jenkins cập nhật repository GitOps chứa cấu hình triển khai.</li>
-    <li>ArgoCD theo dõi GitOps repo, tự động đồng bộ trạng thái hệ thống với cụm Kubernetes trên AWS EKS.</li>
-  </ul>
+## Kiến trúc hệ thống
 
-  <h3>5. Giám sát và quan sát hệ thống</h3>
-  <ul>
-    <li>Hệ thống được giám sát bởi:
-      <ul>
-        <li>Prometheus: Thu thập và lưu trữ metrics.</li>
-        <li>Grafana: Trực quan hóa dữ liệu và hiển thị dashboard theo thời gian thực.</li>
-      </ul>
-    </li>
-  </ul>
+![image](https://github.com/user-attachments/assets/c60e7664-8bd5-41d5-90ee-98687faf695f)
 
-  <h2>Pipeline Overview</h2>
 
-  <h3>Pipeline Stages - CI Job</h3>
-  <ol>
-    <li>Git Checkout: Sao chép mã nguồn từ GitHub.</li>
-    <li>Build Application: Thực hiện biên dịch và đóng gói ứng dụng.</li>
-    <li>SonarQube Analysis: Thực hiện phân tích mã tĩnh.</li>
-    <li>Quality Gate: Đảm bảo tiêu chuẩn chất lượng mã.</li>
-    <li>Install NPM Dependencies: Cài đặt các gói NodeJS.</li>
-    <li>Trivy Security Scan: Quét lỗ hổng bảo mật của dự án.</li>
-    <li>Docker Build: Xây dựng hình ảnh Docker cho dự án.</li>
-    <li>Push to Dockerhub: Gắn thẻ và đẩy image lên Dockerhub.</li>
-    <li>Image Cleanup: Xóa hình ảnh khỏi máy chủ Jenkins để tiết kiệm dung lượng.</li>
-  </ol>
+Quy trình triển khai bao gồm các bước chính sau:
 
-  <h3>Pipeline Stages - CD Job</h3>
-  <ol>
-    <li>Cleanup Workspace: Dọn dẹp không gian làm việc, xóa các tệp tin tạm.</li>
-    <li>Checkout from Git: Kiểm tra mã nguồn từ GitHub.</li>
-    <li>Update the Deployment Tags: Cập nhật các tag trong file deployment.yaml.</li>
-    <li>Push the changed deployment file to GitHub: Đẩy file deployment.yaml đã thay đổi trở lại GitHub. Cấu hình thông tin người dùng Git, thực hiện git add, git commit, và sau đó đẩy thay đổi lên repository trên GitHub.</li>
-  </ol>
+### 1. Quản lý mã nguồn
 
-  <p>Xem chi tiết mã nguồn tại GitHub: 
-    <a href="https://github.com/tien22521469/devops-gitops" target="_blank">
-      https://github.com/tien22521469/devops-gitops
-    </a>
-  </p>
-</body>
-</html>
+- Developer thực hiện đẩy mã nguồn lên Git repository.
+
+### 2. Tích hợp liên tục (CI) – Jenkins
+
+Jenkins đóng vai trò điều phối toàn bộ pipeline CI:
+
+- Biên dịch và kiểm thử với Apache Maven.
+- Phân tích mã nguồn tĩnh với SonarQube để đánh giá chất lượng mã và nợ kỹ thuật.
+- Quét bảo mật:
+  - **Trivy FS scan**: Quét mã nguồn và thư viện.
+  - **Trivy image scan**: Quét lỗ hổng bảo mật trong Docker image.
+- Cài đặt thư viện phụ thuộc thông qua NPM (nếu là ứng dụng Node.js).
+- Đóng gói Docker: Xây dựng Docker image và đẩy lên Docker Registry.
+- Quét bảo mật Docker Image: Trivy scan image.
+
+### 3. Thông báo trạng thái
+
+- Sau khi pipeline chạy xong, Jenkins gửi thông báo qua email cho developer (thành công hoặc thất bại).
+
+### 4. Triển khai liên tục (CD) theo GitOps
+
+- Jenkins cập nhật repository GitOps chứa cấu hình triển khai.
+- ArgoCD theo dõi GitOps repo, tự động đồng bộ trạng thái hệ thống với cụm Kubernetes trên AWS EKS.
+
+### 5. Giám sát và quan sát hệ thống
+
+Hệ thống được giám sát bởi:
+
+- **Prometheus**: Thu thập và lưu trữ metrics.
+- **Grafana**: Trực quan hóa dữ liệu và hiển thị dashboard theo thời gian thực.
+
+## Pipeline Overview
+
+### Pipeline Stages - CI Job
+
+1. **Git Checkout**: Sao chép mã nguồn từ GitHub.
+2. **Build Application**: Thực hiện biên dịch và đóng gói ứng dụng.
+3. **SonarQube Analysis**: Thực hiện phân tích mã tĩnh.
+4. **Quality Gate**: Đảm bảo tiêu chuẩn chất lượng mã.
+5. **Install NPM Dependencies**: Cài đặt các gói NodeJS.
+6. **Trivy Security Scan**: Quét lỗ hổng bảo mật của dự án.
+7. **Docker Build**: Xây dựng hình ảnh Docker cho dự án.
+8. **Push to Dockerhub**: Gắn thẻ và đẩy image lên Dockerhub.
+9. **Image Cleanup**: Xóa hình ảnh khỏi máy chủ Jenkins để tiết kiệm dung lượng.
+
+### Pipeline Stages - CD Job
+
+1. **Cleanup Workspace**: Dọn dẹp không gian làm việc, xóa các tệp tin tạm.
+2. **Checkout from Git**: Kiểm tra mã nguồn từ GitHub.
+3. **Update the Deployment Tags**: Cập nhật các tag trong file `deployment.yaml`.
+4. **Push the changed deployment file to GitHub**:  
+   Đẩy file `deployment.yaml` đã thay đổi trở lại GitHub.  
+   Cấu hình thông tin người dùng Git, thực hiện `git add`, `git commit`, và sau đó đẩy thay đổi lên repository trên GitHub.
+
+## Liên kết mã nguồn
+
+Xem chi tiết mã nguồn tại GitHub:  
+👉 [https://github.com/tien22521469/devops-gitops](https://github.com/tien22521469/gitops)
